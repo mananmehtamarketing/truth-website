@@ -71,18 +71,20 @@ export default function PrivateRoomPage() {
             </motion.p>
           </motion.div>
 
-          {/* Hero asset — desktop static PNG, mobile cocktail-fill video on dark bg */}
+          {/* Hero asset — desktop static PNG, mobile cocktail-fill video full bleed */}
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="relative mx-auto aspect-[9/16] w-full max-w-[460px] md:aspect-[3/4] md:max-w-[520px]"
+            // Mobile: break out of parent px padding so the video runs edge-to-edge.
+            // Desktop: contained, max-w with side margins.
+            className="relative -mx-5 aspect-[9/16] w-screen md:mx-auto md:aspect-[3/4] md:w-full md:max-w-[520px]"
           >
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_60%,_rgba(201,169,107,0.18),_rgba(0,0,0,0)_60%)]"
+              className="pointer-events-none absolute inset-0 hidden md:block bg-[radial-gradient(ellipse_at_50%_60%,_rgba(201,169,107,0.18),_rgba(0,0,0,0)_60%)]"
             />
-            {/* Mobile: luxury beverage pour video — already shot on dark bg */}
+            {/* Mobile: luxury beverage pour video — Veo watermark cropped */}
             <video
               autoPlay
               muted
@@ -90,11 +92,20 @@ export default function PrivateRoomPage() {
               playsInline
               preload="auto"
               poster="/images/private-room/8.png"
-              className="relative z-10 block h-full w-full rounded-md object-cover md:hidden"
-              style={{ mixBlendMode: "screen" }}
+              className="relative z-10 block h-full w-full object-cover md:hidden"
             >
-              <source src="/videos/luxury-beverage.mp4" type="video/mp4" />
+              <source src="/videos/luxury-beverage-clean.mp4" type="video/mp4" />
             </video>
+            {/* Soft top + bottom fade so the video kisses the dark page on mobile */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 top-0 z-20 h-16 bg-gradient-to-b from-truth-black to-transparent md:hidden"
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-16 bg-gradient-to-t from-truth-black to-transparent md:hidden"
+            />
+
             {/* Desktop: static gloved-hands PNG */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

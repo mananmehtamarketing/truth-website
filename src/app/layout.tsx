@@ -5,6 +5,7 @@ import CustomCursor from "@/components/ui/CustomCursor";
 import Loader from "@/components/ui/Loader";
 import ScrollProgress from "@/components/ui/ScrollProgress";
 import PageTransition from "@/components/ui/PageTransition";
+import AudioToggle from "@/components/ui/AudioToggle";
 import Nav from "@/components/sections/Nav";
 import Footer from "@/components/sections/Footer";
 
@@ -43,6 +44,7 @@ export default function RootLayout({
             <main className="relative w-full overflow-x-hidden">{children}</main>
           </PageTransition>
           <Footer />
+          <AudioToggle />
         </LenisProvider>
       </body>
     </html>
