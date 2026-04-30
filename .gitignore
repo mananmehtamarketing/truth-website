@@ -6,3 +6,4 @@ out
 *.log
 .vercel
 public/images/book-frames/*.png
+public/images/_eye-check/
