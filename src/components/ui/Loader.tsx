@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import SmokeCanvas from "@/components/ui/SmokeCanvas";
 
 /**
- * Loader: full-screen looping site-opening video (Opt 1 from Figma assets),
- * played at higher rate so it blends with the rest of the site rhythm.
- * Auto-dismisses on video end OR after a 3.5s ceiling, whichever fires first.
+ * Loader: full-screen animated open with the Opt 1 spark video,
+ * surrounded by drifting amber smoke so the rectangular video edge
+ * blends seamlessly into the page.
  */
-const PLAY_RATE = 1.6; // tweak to taste
+const PLAY_RATE = 1.6;
 const CEILING_MS = 3500;
 
 export default function Loader() {
@@ -17,8 +18,6 @@ export default function Loader() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const startedAt = performance.now();
-
     const finish = () => {
       if (fired.current) return;
       fired.current = true;
@@ -26,7 +25,6 @@ export default function Loader() {
       window.dispatchEvent(new CustomEvent("site:loaded"));
     };
 
-    // Hard ceiling so we never get stuck
     const ceiling = setTimeout(finish, CEILING_MS);
 
     const v = videoRef.current;
@@ -34,21 +32,12 @@ export default function Loader() {
       v.playbackRate = PLAY_RATE;
       const onEnded = () => finish();
       const onPlay = () => {
-        // Bump the rate again once playing — some browsers reset it on play
         v.playbackRate = PLAY_RATE;
       };
       v.addEventListener("ended", onEnded);
       v.addEventListener("play", onPlay);
-      // Make sure we don't undershoot below ~600ms even if video is super short
-      const minMs = 800;
-      const fallbackTimer = setTimeout(() => {
-        if (!fired.current && performance.now() - startedAt > minMs) {
-          // safety
-        }
-      }, minMs);
       return () => {
         clearTimeout(ceiling);
-        clearTimeout(fallbackTimer);
         v.removeEventListener("ended", onEnded);
         v.removeEventListener("play", onPlay);
       };
@@ -65,6 +54,25 @@ export default function Loader() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }}
         >
+          {/* Drifting smoke behind everything — softens the video's rectangle edge */}
+          <div className="pointer-events-none absolute inset-0">
+            <SmokeCanvas
+              density={1.1}
+              hue="rgba(220, 130, 60,"
+              speed={0.9}
+              velocityReactive={false}
+            />
+          </div>
+
+          {/* Subtle amber radial glow so the spark feels embedded in atmosphere */}
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse at center, rgba(255,140,60,0.18) 0%, rgba(0,0,0,0) 55%)",
+            }}
+          />
+
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -80,17 +88,17 @@ export default function Loader() {
               playsInline
               preload="auto"
               className="absolute inset-0 h-full w-full object-contain"
-              // 'lighten' keeps only the brighter pixels of the video against
-              // the page's pure black, so the rectangular black bg vanishes
-              // and just the orange spark glows.
+              // 'lighten' drops the dark pixels of the video against
+              // the page bg so the spark glows without a visible box.
               style={{ mixBlendMode: "lighten" }}
             />
           </motion.div>
+
           <motion.p
             initial={{ opacity: 0, letterSpacing: "0.6em" }}
             animate={{ opacity: 1, letterSpacing: "0.45em" }}
             transition={{ delay: 0.5, duration: 0.7 }}
-            className="font-display text-truth-bone/85 text-[20px] md:text-[24px]"
+            className="relative z-10 font-display text-truth-bone/85 text-[20px] md:text-[24px]"
           >
             TRUTH
           </motion.p>

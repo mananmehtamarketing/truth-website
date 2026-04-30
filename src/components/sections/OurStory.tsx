@@ -8,8 +8,7 @@ import SmokeCanvas from "@/components/ui/SmokeCanvas";
 export default function OurStory() {
   const ref = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [hasPlayed, setHasPlayed] = useState(false);
-  const [imgKey, setImgKey] = useState(0); // bump key to restart animated WebP
+  const [imgKey, setImgKey] = useState(0); // remount WebP on re-entry
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -26,40 +25,77 @@ export default function OurStory() {
   );
 
   /**
-   * Trigger play/animate once when at least 40% of section is on screen.
-   * Desktop: plays the video element from frame 0.
-   * Mobile: re-mounts the animated WebP image so it restarts from frame 0.
+   * Desktop video scrub: tie currentTime to scroll position so the
+   * book OPENS as the section enters (progress 0 → 0.5) and CLOSES
+   * as it leaves (progress 0.5 → 1).
+   *
+   * Formula: t = 1 - |progress - 0.5| * 2
+   *  - progress 0   → t=0 (closed)
+   *  - progress 0.5 → t=1 (open)
+   *  - progress 1   → t=0 (closed)
+   */
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+
+    let raf = 0;
+    let lastT = -1;
+    const tick = () => {
+      const p = scrollYProgress.get();
+      const t = Math.max(0, 1 - Math.abs(p - 0.5) * 2);
+      if (v.duration && !Number.isNaN(v.duration)) {
+        const targetTime = t * v.duration;
+        // throttle to avoid setting identical times
+        if (Math.abs(targetTime - lastT) > 0.02) {
+          try {
+            v.currentTime = targetTime;
+            lastT = targetTime;
+          } catch {}
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    const onMeta = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(tick);
+    };
+    if (v.readyState >= 1) onMeta();
+    else v.addEventListener("loadedmetadata", onMeta, { once: true });
+
+    return () => {
+      cancelAnimationFrame(raf);
+      v.removeEventListener("loadedmetadata", onMeta);
+    };
+  }, [scrollYProgress]);
+
+  /**
+   * Mobile WebP: re-mount whenever the section ENTERS view, so the
+   * looping animation restarts from the beginning. We also unmount
+   * on exit so the WebP can replay on the next entry.
    */
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
+    let inView = false;
 
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
-          if (e.isIntersecting && e.intersectionRatio >= 0.4 && !hasPlayed) {
-            const v = videoRef.current;
-            if (v) {
-              v.muted = true;
-              v.loop = false;
-              v.playsInline = true;
-              try {
-                v.currentTime = 0;
-              } catch {}
-              v.play().catch(() => {});
+          if (e.isIntersecting && e.intersectionRatio >= 0.3) {
+            if (!inView) {
+              inView = true;
+              setImgKey((k) => k + 1);
             }
-            // Force the animated WebP <img> to restart by bumping its key
-            setImgKey((k) => k + 1);
-            setHasPlayed(true);
-            io.disconnect();
+          } else if (e.intersectionRatio < 0.05) {
+            inView = false;
           }
         }
       },
-      { threshold: [0, 0.2, 0.4, 0.6, 0.85] }
+      { threshold: [0, 0.05, 0.3, 0.6, 1] }
     );
     io.observe(node);
     return () => io.disconnect();
-  }, [hasPlayed]);
+  }, []);
 
   return (
     <section
@@ -67,7 +103,7 @@ export default function OurStory() {
       id="story"
       className="relative w-full overflow-hidden py-20 md:py-48"
     >
-      {/* Smoke as the section's background — fades in/out with scroll */}
+      {/* Smoke background — fades in/out with scroll */}
       <motion.div
         style={{ opacity: smokeOpacity }}
         className="pointer-events-none absolute inset-0 z-0"
@@ -85,13 +121,11 @@ export default function OurStory() {
       </motion.div>
 
       <div className="relative z-10 mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-10 px-6 md:grid-cols-[1fr_1.4fr] md:gap-16">
-        {/* Mobile: animated WebP (universally compatible incl. iOS Safari) */}
-        {/* Desktop: WebM/MP4 video, plays once on intersection */}
         <motion.div
           style={{ y: ySlab, scale: slabScale }}
           className="relative aspect-[404/606] w-[78%] max-w-[460px] mx-auto md:w-full"
         >
-          {/* Mobile asset */}
+          {/* Mobile: animated WebP — restarts on each section entry */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             key={imgKey}
@@ -103,7 +137,7 @@ export default function OurStory() {
                 "drop-shadow(0 14px 28px rgba(201,169,107,0.4)) drop-shadow(0 0 60px rgba(201,169,107,0.15))",
             }}
           />
-          {/* Desktop asset */}
+          {/* Desktop: WebM/MP4 scrubbed by scroll progress */}
           <video
             ref={videoRef}
             muted
