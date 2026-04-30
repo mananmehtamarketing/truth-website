@@ -4,16 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SmokeCanvas from "@/components/ui/SmokeCanvas";
 
-/**
- * Loader: full-screen animated open with the Opt 1 spark video,
- * surrounded by drifting amber smoke so the rectangular video edge
- * blends seamlessly into the page.
- */
 const PLAY_RATE = 1.6;
-const CEILING_MS = 3500;
+const START_DELAY_MS = 500; // hold smoke + black for 0.5s before video plays
+const CEILING_MS = 4500;
 
 export default function Loader() {
   const [show, setShow] = useState(true);
+  const [videoVisible, setVideoVisible] = useState(false);
   const fired = useRef(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -24,25 +21,28 @@ export default function Loader() {
       setShow(false);
       window.dispatchEvent(new CustomEvent("site:loaded"));
     };
-
     const ceiling = setTimeout(finish, CEILING_MS);
 
-    const v = videoRef.current;
-    if (v) {
-      v.playbackRate = PLAY_RATE;
-      const onEnded = () => finish();
-      const onPlay = () => {
+    // Hold for 500ms before starting the video
+    const startTimer = setTimeout(() => {
+      setVideoVisible(true);
+      const v = videoRef.current;
+      if (v) {
         v.playbackRate = PLAY_RATE;
-      };
-      v.addEventListener("ended", onEnded);
-      v.addEventListener("play", onPlay);
-      return () => {
-        clearTimeout(ceiling);
-        v.removeEventListener("ended", onEnded);
-        v.removeEventListener("play", onPlay);
-      };
-    }
-    return () => clearTimeout(ceiling);
+        v.play().catch(() => {});
+        const onEnded = () => finish();
+        const onPlay = () => {
+          v.playbackRate = PLAY_RATE;
+        };
+        v.addEventListener("ended", onEnded, { once: true });
+        v.addEventListener("play", onPlay);
+      }
+    }, START_DELAY_MS);
+
+    return () => {
+      clearTimeout(ceiling);
+      clearTimeout(startTimer);
+    };
   }, []);
 
   return (
@@ -54,7 +54,7 @@ export default function Loader() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }}
         >
-          {/* Drifting smoke behind everything — softens the video's rectangle edge */}
+          {/* Drifting amber smoke — runs the whole loader duration */}
           <div className="pointer-events-none absolute inset-0">
             <SmokeCanvas
               density={1.1}
@@ -63,8 +63,6 @@ export default function Loader() {
               velocityReactive={false}
             />
           </div>
-
-          {/* Subtle amber radial glow so the spark feels embedded in atmosphere */}
           <div
             className="pointer-events-none absolute inset-0"
             style={{
@@ -75,21 +73,18 @@ export default function Loader() {
 
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            animate={{ opacity: videoVisible ? 1 : 0, scale: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
             className="relative w-[88vw] max-w-[920px]"
             style={{ aspectRatio: "16 / 9" }}
           >
             <video
               ref={videoRef}
               src="/videos/opt1-clean.mp4"
-              autoPlay
               muted
               playsInline
               preload="auto"
               className="absolute inset-0 h-full w-full object-contain"
-              // 'lighten' drops the dark pixels of the video against
-              // the page bg so the spark glows without a visible box.
               style={{ mixBlendMode: "lighten" }}
             />
           </motion.div>
@@ -97,7 +92,7 @@ export default function Loader() {
           <motion.p
             initial={{ opacity: 0, letterSpacing: "0.6em" }}
             animate={{ opacity: 1, letterSpacing: "0.45em" }}
-            transition={{ delay: 0.5, duration: 0.7 }}
+            transition={{ delay: 0.6, duration: 0.7 }}
             className="relative z-10 font-display text-truth-bone/85 text-[20px] md:text-[24px]"
           >
             TRUTH
