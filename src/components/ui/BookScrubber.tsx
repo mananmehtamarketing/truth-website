@@ -1,26 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useScroll } from "framer-motion";
-
-const FRAMES = [
-  "/images/book-keyframes/frame-1.webp", // closed
-  "/images/book-keyframes/frame-2.webp", // mid
-  "/images/book-keyframes/frame-3.webp", // open
-];
+import { motion, useScroll, useTransform } from "framer-motion";
 
 /**
- * Three-keyframe book animation tied to scroll.
+ * Book + animated eye iris.
+ *
+ * The base image has the iris (gold ball) painted over with surrounding
+ * stone color. We overlay a real golden iris on top that scales Y based
+ * on scroll progress, simulating the eye opening/closing.
+ *
+ * Iris position (% of image size): cx 50%, cy 35.83%, r 8.33% of image width.
  *
  * Mapping with t = 1 - |progress - 0.5| * 2:
- *  - progress 0   (entering)  → t=0   → frame 1 (closed)
- *  - progress 0.25            → t=0.5 → frame 2 (mid)
- *  - progress 0.5  (centered) → t=1   → frame 3 (open)
- *  - progress 0.75            → t=0.5 → frame 2 (mid)
- *  - progress 1   (leaving)   → t=0   → frame 1 (closed)
- *
- * Result: book opens as you scroll into the section, closes as you scroll past.
- * Reverses cleanly when scrolling back up.
+ *  - progress 0   (entering): t=0  → scaleY=0  → eye CLOSED
+ *  - progress 0.5 (centered): t=1  → scaleY=1  → eye OPEN
+ *  - progress 1   (leaving):  t=0  → scaleY=0  → eye CLOSED
  */
 export default function BookScrubber({
   targetRef,
@@ -31,63 +26,75 @@ export default function BookScrubber({
   className?: string;
   style?: React.CSSProperties;
 }) {
-  const lastIndex = useRef(-1);
-  const [index, setIndex] = useState(0);
-  const [loaded, setLoaded] = useState(false);
-
   const { scrollYProgress } = useScroll({
     target: targetRef,
     offset: ["start end", "end start"],
   });
 
-  // Preload all 3 frames
-  useEffect(() => {
-    let cancelled = false;
-    let count = 0;
-    FRAMES.forEach((src) => {
-      const img = new Image();
-      img.onload = img.onerror = () => {
-        count += 1;
-        if (count === FRAMES.length && !cancelled) setLoaded(true);
-      };
-      img.src = src;
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // t goes 0 → 1 → 0 across the section
+  const t = useTransform(scrollYProgress, (p) =>
+    Math.max(0, 1 - Math.abs(p - 0.5) * 2)
+  );
 
-  // Drive the active frame from scroll progress
-  useEffect(() => {
-    if (!loaded) return;
-    let raf = 0;
-    const tick = () => {
-      const p = scrollYProgress.get();
-      const t = Math.max(0, 1 - Math.abs(p - 0.5) * 2);
-      const idx = Math.min(2, Math.max(0, Math.round(t * 2)));
-      if (idx !== lastIndex.current) {
-        lastIndex.current = idx;
-        setIndex(idx);
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [loaded, scrollYProgress]);
+  // Eye opens vertically (scaleY) and slightly horizontally for natural feel
+  const irisScaleY = t;
+  const irisScaleX = useTransform(t, (v) => 0.85 + v * 0.15);
+  // Iris drops slightly when closing, rises when opening — adds organic bob
+  const irisDy = useTransform(t, (v) => `${(1 - v) * 4}%`);
 
   return (
     <div className={`relative h-full w-full ${className}`} style={style}>
-      {FRAMES.map((src, i) => (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          key={src}
-          src={src}
-          alt=""
-          aria-hidden={i !== index}
-          className="absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ease-out"
-          style={{ opacity: index === i ? 1 : 0 }}
+      {/* Base book image with iris erased */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/book-keyframes/book-base.webp"
+        alt="Eye of Horus carved book"
+        className="absolute inset-0 h-full w-full object-contain"
+      />
+
+      {/* Animated iris layer — positioned over where the iris was */}
+      <svg
+        viewBox="0 0 100 100"
+        preserveAspectRatio="xMidYMid meet"
+        className="absolute inset-0 h-full w-full pointer-events-none"
+        aria-hidden
+      >
+        <defs>
+          <radialGradient id="irisGold" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#f5d999" />
+            <stop offset="55%" stopColor="#c9a96b" />
+            <stop offset="100%" stopColor="#7a5a26" />
+          </radialGradient>
+          <radialGradient id="irisGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="rgba(255,210,140,0.65)" />
+            <stop offset="100%" stopColor="rgba(255,210,140,0)" />
+          </radialGradient>
+        </defs>
+
+        {/* Soft glow that breathes with the iris */}
+        <motion.circle
+          cx="50"
+          cy="35.83"
+          r="11"
+          fill="url(#irisGlow)"
+          style={{ scaleY: irisScaleY, originY: 0.36, originX: 0.5 } as any}
         />
-      ))}
+
+        {/* The iris itself — a gold ball that scales Y to mimic eyelid */}
+        <motion.g
+          style={{
+            scaleY: irisScaleY,
+            scaleX: irisScaleX,
+            translateY: irisDy,
+            originX: "50%",
+            originY: "35.83%",
+          } as any}
+        >
+          <circle cx="50" cy="35.83" r="4.5" fill="url(#irisGold)" />
+          {/* Inner highlight on iris */}
+          <circle cx="48.8" cy="34.6" r="1.4" fill="#fff8e7" opacity="0.55" />
+        </motion.g>
+      </svg>
     </div>
   );
 }
