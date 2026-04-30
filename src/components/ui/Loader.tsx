@@ -5,12 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import SmokeCanvas from "@/components/ui/SmokeCanvas";
 
 const PLAY_RATE = 1.6;
-const START_DELAY_MS = 500; // hold smoke + black for 0.5s before video plays
 const CEILING_MS = 4500;
 
 export default function Loader() {
   const [show, setShow] = useState(true);
-  const [videoVisible, setVideoVisible] = useState(false);
   const fired = useRef(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -23,26 +21,22 @@ export default function Loader() {
     };
     const ceiling = setTimeout(finish, CEILING_MS);
 
-    // Hold for 500ms before starting the video
-    const startTimer = setTimeout(() => {
-      setVideoVisible(true);
-      const v = videoRef.current;
-      if (v) {
+    const v = videoRef.current;
+    if (v) {
+      v.playbackRate = PLAY_RATE;
+      const onEnded = () => finish();
+      const onPlay = () => {
         v.playbackRate = PLAY_RATE;
-        v.play().catch(() => {});
-        const onEnded = () => finish();
-        const onPlay = () => {
-          v.playbackRate = PLAY_RATE;
-        };
-        v.addEventListener("ended", onEnded, { once: true });
-        v.addEventListener("play", onPlay);
-      }
-    }, START_DELAY_MS);
-
-    return () => {
-      clearTimeout(ceiling);
-      clearTimeout(startTimer);
-    };
+      };
+      v.addEventListener("ended", onEnded, { once: true });
+      v.addEventListener("play", onPlay);
+      return () => {
+        clearTimeout(ceiling);
+        v.removeEventListener("ended", onEnded);
+        v.removeEventListener("play", onPlay);
+      };
+    }
+    return () => clearTimeout(ceiling);
   }, []);
 
   return (
@@ -71,28 +65,28 @@ export default function Loader() {
             }}
           />
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.94 }}
-            animate={{ opacity: videoVisible ? 1 : 0, scale: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+          {/* Video plays IMMEDIATELY from its first frame — no black hold */}
+          <div
             className="relative w-[88vw] max-w-[920px]"
             style={{ aspectRatio: "16 / 9" }}
           >
             <video
               ref={videoRef}
               src="/videos/opt1-clean.mp4"
+              autoPlay
               muted
               playsInline
               preload="auto"
+              poster="/images/loader-poster.jpg"
               className="absolute inset-0 h-full w-full object-contain"
               style={{ mixBlendMode: "lighten" }}
             />
-          </motion.div>
+          </div>
 
           <motion.p
             initial={{ opacity: 0, letterSpacing: "0.6em" }}
             animate={{ opacity: 1, letterSpacing: "0.45em" }}
-            transition={{ delay: 0.6, duration: 0.7 }}
+            transition={{ delay: 0.4, duration: 0.7 }}
             className="relative z-10 font-display text-truth-bone/85 text-[20px] md:text-[24px]"
           >
             TRUTH
