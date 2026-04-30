@@ -3,19 +3,44 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import TiltCard from "@/components/ui/TiltCard";
+import MagneticButton from "@/components/ui/MagneticButton";
 
 const tiles = [
-  { src: "/images/3.png", alt: "Signature cocktail on red leather" },
-  { src: "/images/4.png", alt: "Private lounge corner" },
-  { src: "/images/5.png", alt: "Bar interior glow" },
+  {
+    src: "/images/3.png",
+    alt: "Signature cocktail on red leather",
+    button: { label: "Menu", href: "/menu" },
+  },
+  {
+    src: "/images/4.png",
+    alt: "Private lounge corner",
+    button: { label: "Private Rooms", href: "/private-room" },
+  },
+  {
+    src: "/images/5.png",
+    alt: "Bar interior glow",
+    button: { label: "FAQ's", href: "/faqs" },
+  },
 ];
 
 export default function Gallery() {
   return (
     <section className="relative pt-24 pb-10 md:pt-32 md:pb-12">
-      <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-6 px-6 md:grid-cols-3 md:gap-8">
+      <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-10 px-6 md:grid-cols-3 md:gap-8">
         {tiles.map((t, i) => (
-          <Tile key={t.src} src={t.src} alt={t.alt} index={i} />
+          <div key={t.src} className="flex flex-col items-stretch gap-6 md:gap-0">
+            <Tile src={t.src} alt={t.alt} index={i} />
+            {/* Mobile-only button under each tile */}
+            <div className="flex justify-center md:hidden">
+              <MagneticButton
+                href={t.button.href}
+                className="!w-full !max-w-[280px] !px-8 !py-4 !text-[18px]"
+                ariaLabel={t.button.label}
+              >
+                {t.button.label}
+              </MagneticButton>
+            </div>
+          </div>
         ))}
       </div>
     </section>

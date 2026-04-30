@@ -1,14 +1,13 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import SplitText from "@/components/ui/SplitText";
 import SmokeCanvas from "@/components/ui/SmokeCanvas";
+import BookScrubber from "@/components/ui/BookScrubber";
 
 export default function OurStory() {
   const ref = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [imgKey, setImgKey] = useState(0); // remount WebP on re-entry
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -23,79 +22,6 @@ export default function OurStory() {
     [0, 0.2, 0.8, 1],
     [0, 0.9, 0.9, 0]
   );
-
-  /**
-   * Desktop video scrub: tie currentTime to scroll position so the
-   * book OPENS as the section enters (progress 0 → 0.5) and CLOSES
-   * as it leaves (progress 0.5 → 1).
-   *
-   * Formula: t = 1 - |progress - 0.5| * 2
-   *  - progress 0   → t=0 (closed)
-   *  - progress 0.5 → t=1 (open)
-   *  - progress 1   → t=0 (closed)
-   */
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-
-    let raf = 0;
-    let lastT = -1;
-    const tick = () => {
-      const p = scrollYProgress.get();
-      const t = Math.max(0, 1 - Math.abs(p - 0.5) * 2);
-      if (v.duration && !Number.isNaN(v.duration)) {
-        const targetTime = t * v.duration;
-        // throttle to avoid setting identical times
-        if (Math.abs(targetTime - lastT) > 0.02) {
-          try {
-            v.currentTime = targetTime;
-            lastT = targetTime;
-          } catch {}
-        }
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    const onMeta = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(tick);
-    };
-    if (v.readyState >= 1) onMeta();
-    else v.addEventListener("loadedmetadata", onMeta, { once: true });
-
-    return () => {
-      cancelAnimationFrame(raf);
-      v.removeEventListener("loadedmetadata", onMeta);
-    };
-  }, [scrollYProgress]);
-
-  /**
-   * Mobile WebP: re-mount whenever the section ENTERS view, so the
-   * looping animation restarts from the beginning. We also unmount
-   * on exit so the WebP can replay on the next entry.
-   */
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-    let inView = false;
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting && e.intersectionRatio >= 0.3) {
-            if (!inView) {
-              inView = true;
-              setImgKey((k) => k + 1);
-            }
-          } else if (e.intersectionRatio < 0.05) {
-            inView = false;
-          }
-        }
-      },
-      { threshold: [0, 0.05, 0.3, 0.6, 1] }
-    );
-    io.observe(node);
-    return () => io.disconnect();
-  }, []);
 
   return (
     <section
@@ -121,37 +47,18 @@ export default function OurStory() {
       </motion.div>
 
       <div className="relative z-10 mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-10 px-6 md:grid-cols-[1fr_1.4fr] md:gap-16">
+        {/* Book — PNG/WebP frame scrubber tied to scroll. Works on every device. */}
         <motion.div
           style={{ y: ySlab, scale: slabScale }}
           className="relative aspect-[404/606] w-[78%] max-w-[460px] mx-auto md:w-full"
         >
-          {/* Mobile: animated WebP — restarts on each section entry */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            key={imgKey}
-            src="/videos/book.webp"
-            alt="Eye of Horus carved book"
-            className="block h-full w-full object-contain md:hidden"
-            style={{
-              filter:
-                "drop-shadow(0 14px 28px rgba(201,169,107,0.4)) drop-shadow(0 0 60px rgba(201,169,107,0.15))",
-            }}
-          />
-          {/* Desktop: WebM/MP4 scrubbed by scroll progress */}
-          <video
-            ref={videoRef}
-            muted
-            playsInline
-            preload="auto"
-            className="hidden h-full w-full object-contain md:block"
+          <BookScrubber
+            targetRef={ref}
             style={{
               filter:
                 "drop-shadow(0 18px 36px rgba(201,169,107,0.45)) drop-shadow(0 0 80px rgba(201,169,107,0.18))",
             }}
-          >
-            <source src="/videos/book.webm" type="video/webm" />
-            <source src="/videos/book.mp4" type="video/mp4" />
-          </video>
+          />
         </motion.div>
 
         <motion.div style={{ y: yText }} className="relative">
