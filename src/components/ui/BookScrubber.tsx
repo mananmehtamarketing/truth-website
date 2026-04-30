@@ -60,7 +60,11 @@ export default function BookScrubber({
     let raf = 0;
     const tick = () => {
       const p = scrollYProgress.get();
-      const t = Math.max(0, 1 - Math.abs(p - 0.5) * 2);
+      // Amplify the curve so the book opens/closes within a TIGHTER band.
+      // Previously: t = 1 - |p-0.5|*2 (book opens across whole section)
+      // Now: t = 1 - |p-0.5|*4 clamped (book stays closed near edges,
+      //         opens rapidly in the middle 50% of the section)
+      const t = Math.max(0, Math.min(1, 1 - Math.abs(p - 0.5) * 4));
       const idx = Math.min(
         TOTAL_FRAMES - 1,
         Math.max(0, Math.round(t * (TOTAL_FRAMES - 1)))

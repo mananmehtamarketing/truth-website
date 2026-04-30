@@ -29,21 +29,27 @@ export default function OurStory() {
       id="story"
       className="relative w-full overflow-hidden py-20 md:py-48"
     >
-      {/* Smoke background — fades in/out with scroll */}
+      {/* Smoke background — fades in/out with scroll, soft edges so it
+          blends seamlessly into the dark page above and below */}
       <motion.div
         style={{ opacity: smokeOpacity }}
         className="pointer-events-none absolute inset-0 z-0"
         aria-hidden
       >
-        <SmokeCanvas density={0.85} hue="rgba(216, 199, 163," speed={1} />
+        <SmokeCanvas density={0.7} hue="rgba(216, 199, 163," speed={1} />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/dust.png"
           alt=""
-          className="absolute inset-x-0 top-1/2 mx-auto h-auto w-[110%] max-w-none -translate-y-1/2 mix-blend-screen opacity-50"
+          className="absolute inset-x-0 top-1/2 mx-auto h-auto w-[110%] max-w-none -translate-y-1/2 mix-blend-screen opacity-40"
         />
-        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-truth-black to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-truth-black to-transparent" />
+        {/* Generous top/bottom fades — 35% of section each — so the smoke
+            tapers all the way to pure black before meeting neighboring sections */}
+        <div className="absolute inset-x-0 top-0 h-[35%] bg-gradient-to-b from-truth-black via-truth-black/60 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-truth-black via-truth-black/60 to-transparent" />
+        {/* Side fades for extra atmospheric falloff on wide screens */}
+        <div className="absolute inset-y-0 left-0 w-[15%] bg-gradient-to-r from-truth-black/80 to-transparent" />
+        <div className="absolute inset-y-0 right-0 w-[15%] bg-gradient-to-l from-truth-black/80 to-transparent" />
       </motion.div>
 
       <div className="relative z-10 mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-10 px-6 md:grid-cols-[1fr_1.4fr] md:gap-16">
