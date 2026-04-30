@@ -71,7 +71,7 @@ export default function PrivateRoomPage() {
             </motion.p>
           </motion.div>
 
-          {/* Original gloved hands + cocktail PNG (transparent), no video */}
+          {/* Hero asset — PNG on desktop, looping pour video on mobile */}
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -82,11 +82,29 @@ export default function PrivateRoomPage() {
               aria-hidden
               className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_60%,_rgba(201,169,107,0.18),_rgba(0,0,0,0)_60%)]"
             />
+            {/* Mobile: looping pour video */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              poster="/images/private-room/8.png"
+              className="relative z-10 block h-full w-full object-contain md:hidden"
+              style={{
+                filter:
+                  "drop-shadow(0 12px 30px rgba(201,169,107,0.35)) drop-shadow(0 0 60px rgba(201,169,107,0.15))",
+              }}
+            >
+              <source src="/videos/private-pour.webm" type="video/webm" />
+              <source src="/videos/private-pour.mp4" type="video/mp4" />
+            </video>
+            {/* Desktop: static PNG */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/private-room/8.png"
               alt="Bartender pouring tonic into a cocktail"
-              className="relative z-10 block h-full w-full object-contain"
+              className="relative z-10 hidden h-full w-full object-contain md:block"
             />
           </motion.div>
         </div>

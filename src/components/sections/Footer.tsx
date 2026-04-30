@@ -10,7 +10,7 @@ const navLinks: { label: string; href: string }[] = [
   { label: "Private Events", href: "/private-room" },
   { label: "FAQ's", href: "/faqs" },
   { label: "Live Music & DJ", href: "/live-music" },
-  { label: "Contact", href: "/#contact" },
+  { label: "Contact", href: "/contact" },
   { label: "Terms & Conditions", href: "/" },
 ];
 
@@ -45,7 +45,7 @@ export default function Footer() {
               What Lies Beneath
             </motion.h3>
 
-            <div className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-3">
+            <div className="mt-8 grid grid-cols-2 gap-6 md:mt-10 md:grid-cols-3 md:gap-10">
               {/* nav */}
               <motion.ul
                 initial="hidden"
@@ -55,7 +55,7 @@ export default function Footer() {
                   hidden: {},
                   show: { transition: { staggerChildren: 0.05 } },
                 }}
-                className="space-y-2 font-body text-[16px] text-truth-bone/85 md:text-[18px]"
+                className="space-y-1.5 font-body text-[14px] text-truth-bone/85 sm:text-[15px] md:space-y-2 md:text-[18px]"
               >
                 {navLinks.map((l) => (
                   <motion.li
@@ -72,26 +72,26 @@ export default function Footer() {
                 ))}
               </motion.ul>
 
-              {/* CTAs */}
-              <div className="flex flex-col items-start gap-4">
-                <MagneticButton className="!px-8 !py-3 !text-[16px]" ariaLabel="Event Team">
+              {/* CTAs — stacked on mobile, full column on desktop */}
+              <div className="flex flex-col items-start gap-3 md:gap-4">
+                <MagneticButton className="!w-full !px-4 !py-2.5 !text-[14px] sm:!w-auto sm:!px-8 sm:!py-3 sm:!text-[16px]" ariaLabel="Event Team">
                   Event Team
                 </MagneticButton>
-                <MagneticButton className="!px-8 !py-3 !text-[16px]" ariaLabel="Menu">
+                <MagneticButton className="!w-full !px-4 !py-2.5 !text-[14px] sm:!w-auto sm:!px-8 sm:!py-3 sm:!text-[16px]" ariaLabel="Menu">
                   Menu
                 </MagneticButton>
-                <MagneticButton className="!px-8 !py-3 !text-[16px]" ariaLabel="Brochure">
+                <MagneticButton className="!w-full !px-4 !py-2.5 !text-[14px] sm:!w-auto sm:!px-8 sm:!py-3 sm:!text-[16px]" ariaLabel="Brochure">
                   Brochure
                 </MagneticButton>
               </div>
 
-              {/* hours / connect */}
-              <div className="space-y-8">
+              {/* hours / connect — side by side on mobile too */}
+              <div className="col-span-2 grid grid-cols-2 gap-6 md:col-span-1 md:block md:space-y-8">
                 <div>
-                  <p className="font-body text-[14px] font-bold uppercase tracking-[0.3em] text-truth-bone/90">
+                  <p className="font-body text-[12px] font-bold uppercase tracking-[0.3em] text-truth-bone/90 md:text-[14px]">
                     Hours
                   </p>
-                  <ul className="mt-3 space-y-1 font-body text-[16px] text-truth-bone/85">
+                  <ul className="mt-2 space-y-0.5 font-body text-[13px] text-truth-bone/85 md:mt-3 md:space-y-1 md:text-[16px]">
                     {hours.map(([d, h]) => (
                       <motion.li
                         key={d}
@@ -99,7 +99,7 @@ export default function Footer() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, amount: 0.5 }}
                         transition={{ duration: 0.5 }}
-                        className="flex justify-between gap-6"
+                        className="flex flex-col md:flex-row md:justify-between md:gap-6"
                       >
                         <span className="text-truth-bone/70">{d}</span>
                         <span>{h}</span>
@@ -108,13 +108,13 @@ export default function Footer() {
                   </ul>
                 </div>
                 <div>
-                  <p className="font-body text-[14px] font-bold uppercase tracking-[0.3em] text-truth-bone/90">
+                  <p className="font-body text-[12px] font-bold uppercase tracking-[0.3em] text-truth-bone/90 md:text-[14px]">
                     Connect
                   </p>
-                  <ul className="mt-3 space-y-1 font-body text-[16px] text-truth-bone/85">
+                  <ul className="mt-2 space-y-0.5 font-body text-[13px] text-truth-bone/85 md:mt-3 md:space-y-1 md:text-[16px]">
                     {emails.map((e) => (
                       <li key={e}>
-                        <a href={`mailto:${e}`} className="hover:text-truth-gold">
+                        <a href={`mailto:${e}`} className="break-all hover:text-truth-gold">
                           {e}
                         </a>
                       </li>
@@ -125,12 +125,12 @@ export default function Footer() {
             </div>
 
             {/* Map placeholder + location */}
-            <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-[1fr_1fr]">
+            <div className="mt-8 grid grid-cols-1 gap-6 md:mt-12 md:grid-cols-[1fr_1fr] md:gap-8">
               <div>
-                <p className="font-body text-[14px] font-bold uppercase tracking-[0.3em] text-truth-bone/90">
+                <p className="font-body text-[12px] font-bold uppercase tracking-[0.3em] text-truth-bone/90 md:text-[14px]">
                   Location
                 </p>
-                <p className="mt-2 font-body text-[16px] text-truth-bone/85">
+                <p className="mt-2 font-body text-[14px] text-truth-bone/85 md:text-[16px]">
                   London
                   <br />
                   Address line 1,

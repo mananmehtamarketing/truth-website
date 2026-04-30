@@ -12,7 +12,7 @@ const links = [
 const linksRight = [
   { label: "LIVE MUSIC & DJ", href: "/live-music" },
   { label: "ABOUT US", href: "/about" },
-  { label: "CONTACT", href: "/#contact" },
+  { label: "CONTACT", href: "/contact" },
 ];
 
 export default function Nav() {
@@ -30,66 +30,83 @@ export default function Nav() {
     };
   }, []);
 
+  // Lock body scroll when drawer open
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
   return (
-    <header
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-500 ${
-        scrolled ? "bg-truth-black/70 backdrop-blur-md" : "bg-transparent"
-      }`}
-    >
-      <div className="mx-auto flex max-w-[1440px] items-center justify-between px-6 py-5 md:px-10">
-        {/* Mobile: hamburger */}
-        <button
-          aria-label="Open menu"
-          className="md:hidden"
-          onClick={() => setOpen(true)}
-        >
-          <span className="block h-[2px] w-7 bg-truth-bone" />
-          <span className="mt-[6px] block h-[2px] w-7 bg-truth-bone" />
-          <span className="mt-[6px] block h-[2px] w-5 bg-truth-bone" />
-        </button>
+    <>
+      <header
+        className={`fixed inset-x-0 top-0 z-50 transition-colors duration-500 ${
+          scrolled ? "bg-truth-black/70 backdrop-blur-md" : "bg-transparent"
+        }`}
+      >
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-6 py-5 md:px-10">
+          <button
+            aria-label="Open menu"
+            className="md:hidden"
+            onClick={() => setOpen(true)}
+          >
+            <span className="block h-[2px] w-7 bg-truth-bone" />
+            <span className="mt-[6px] block h-[2px] w-7 bg-truth-bone" />
+            <span className="mt-[6px] block h-[2px] w-5 bg-truth-bone" />
+          </button>
 
-        <nav className="hidden flex-1 items-center justify-between font-body text-[14px] uppercase tracking-[0.18em] text-truth-bone md:flex">
-          <ul className="flex flex-1 items-center justify-end gap-10">
-            {links.map((l) => (
-              <NavLink key={l.label} {...l} />
-            ))}
-          </ul>
-          <Crest />
-          <ul className="flex flex-1 items-center justify-start gap-10">
-            {linksRight.map((l) => (
-              <NavLink key={l.label} {...l} />
-            ))}
-          </ul>
-        </nav>
+          <nav className="hidden flex-1 items-center justify-between font-body text-[14px] uppercase tracking-[0.18em] text-truth-bone md:flex">
+            <ul className="flex flex-1 items-center justify-end gap-10">
+              {links.map((l) => (
+                <NavLink key={l.label} {...l} />
+              ))}
+            </ul>
+            <Crest />
+            <ul className="flex flex-1 items-center justify-start gap-10">
+              {linksRight.map((l) => (
+                <NavLink key={l.label} {...l} />
+              ))}
+            </ul>
+          </nav>
 
-        {/* Mobile centered crest */}
-        <div className="md:hidden">
-          <Crest small />
+          <div className="md:hidden">
+            <Crest small />
+          </div>
+          <div className="md:hidden" aria-hidden style={{ width: 24 }} />
         </div>
-        <div className="md:hidden" aria-hidden style={{ width: 24 }} />
-      </div>
+      </header>
 
-      {/* Mobile drawer */}
+      {/* Drawer rendered as a SIBLING of header so backdrop-filter on the
+          scrolled header doesn't create a containing block that clips it */}
       <AnimatePresence>
         {open && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-6 bg-truth-black/95 px-8 text-center font-display text-3xl text-truth-bone"
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-7 bg-truth-black px-8 text-center font-display text-3xl text-truth-bone"
           >
             <button
               aria-label="Close menu"
               className="absolute right-6 top-6 text-truth-gold"
               onClick={() => setOpen(false)}
             >
-              ✕
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <path
+                  d="M5 5 L 23 23 M 23 5 L 5 23"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
             </button>
             {[...links, ...linksRight].map((l, i) => (
               <motion.div
                 key={l.label}
                 initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1, transition: { delay: 0.05 * i } }}
+                animate={{ y: 0, opacity: 1, transition: { delay: 0.04 * i } }}
               >
                 <Link
                   href={l.href}
@@ -103,7 +120,7 @@ export default function Nav() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }
 
@@ -122,8 +139,6 @@ function NavLink({ label, href }: { label: string; href: string }) {
 }
 
 function Crest({ small = false }: { small?: boolean }) {
-  // Real Figma crest, scaled up. Drop /public/images/logo-crest.png (or .gif/.webm)
-  // when you're ready and it'll auto-replace if named identically.
   return (
     <Link
       href="/"
@@ -134,9 +149,7 @@ function Crest({ small = false }: { small?: boolean }) {
     >
       <span
         className="block transition-transform duration-500 group-hover:rotate-[6deg]"
-        style={{
-          filter: "drop-shadow(0 0 18px rgba(201,169,107,0.5))",
-        }}
+        style={{ filter: "drop-shadow(0 0 18px rgba(201,169,107,0.5))" }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
