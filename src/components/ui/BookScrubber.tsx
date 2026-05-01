@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useScroll } from "framer-motion";
 
 const TOTAL_FRAMES = 40;
 const FRAMES = Array.from({ length: TOTAL_FRAMES }, (_, i) => {
@@ -9,10 +8,18 @@ const FRAMES = Array.from({ length: TOTAL_FRAMES }, (_, i) => {
   return `/images/book-seq/frame-${n}.webp`;
 });
 
+// Animation duration for one open or one close
+const PLAY_MS = 1200;
+
 /**
- * Book scroll scrubber — full 40-frame sequence from the source MP4.
- * Edges of the book frame (where natural smoke lives) fade to transparent
- * via a radial mask so they blend into the dark page seamlessly.
+ * Intersection-driven book animation.
+ *
+ * - Section enters viewport (≥30% visible): play frames 0 → 39 over PLAY_MS
+ * - Section leaves viewport (<10% visible): play frames currentFrame → 0 over PLAY_MS
+ * - Re-enters: replay forward
+ *
+ * No scroll-position dependency — works identically on every page,
+ * regardless of section position or page length.
  */
 export default function BookScrubber({
   targetRef,
@@ -24,15 +31,14 @@ export default function BookScrubber({
   style?: React.CSSProperties;
 }) {
   const imgRef = useRef<HTMLImageElement>(null);
-  const lastIdx = useRef(-1);
+  const lastIdx = useRef(0);
+  const animRef = useRef<number | null>(null);
+  const startTime = useRef(0);
+  const fromIdx = useRef(0);
+  const toIdx = useRef(0);
   const [loaded, setLoaded] = useState(false);
 
-  const { scrollYProgress } = useScroll({
-    target: targetRef,
-    offset: ["start end", "end start"],
-  });
-
-  // Preload all frames so swap is instant once scrolling
+  // Preload all 40 frames
   useEffect(() => {
     let cancelled = false;
     let count = 0;
@@ -49,45 +55,67 @@ export default function BookScrubber({
     };
   }, []);
 
-  // Drive frame from scroll progress. Mobile uses a much steeper curve so
-  // the book opens earlier (right when section is near top of viewport) and
-  // stays open longer through the scroll, since mobile sections scroll past
-  // very quickly and users miss the centered moment otherwise.
+  // Show frame helper
+  const showFrame = (idx: number) => {
+    const clamped = Math.min(TOTAL_FRAMES - 1, Math.max(0, idx));
+    if (clamped !== lastIdx.current && imgRef.current) {
+      imgRef.current.src = FRAMES[clamped];
+      lastIdx.current = clamped;
+    }
+  };
+
+  // Animate from current frame to target frame over PLAY_MS
+  const animateTo = (target: number) => {
+    if (animRef.current) cancelAnimationFrame(animRef.current);
+    fromIdx.current = lastIdx.current;
+    toIdx.current = target;
+    startTime.current = performance.now();
+
+    const tick = (now: number) => {
+      const elapsed = now - startTime.current;
+      const t = Math.min(1, elapsed / PLAY_MS);
+      // ease in-out cubic for natural motion
+      const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const cur = Math.round(
+        fromIdx.current + (toIdx.current - fromIdx.current) * eased
+      );
+      showFrame(cur);
+      if (t < 1) {
+        animRef.current = requestAnimationFrame(tick);
+      } else {
+        animRef.current = null;
+      }
+    };
+    animRef.current = requestAnimationFrame(tick);
+  };
+
+  // IntersectionObserver — drive forward / reverse based on visibility
   useEffect(() => {
     if (!loaded) return;
-    const isMobile =
-      typeof window !== "undefined" &&
-      window.matchMedia("(max-width: 767px)").matches;
+    const node = targetRef.current;
+    if (!node) return;
 
-    let raf = 0;
-    const tick = () => {
-      const p = scrollYProgress.get();
-      // Mobile: amplify x8 — book hits fully-open across a wide middle band
-      // Desktop: amplify x4 — already perfect there
-      const mult = isMobile ? 8 : 4;
-      const t = Math.max(0, Math.min(1, 1 - Math.abs(p - 0.5) * mult));
-      const idx = Math.min(
-        TOTAL_FRAMES - 1,
-        Math.max(0, Math.round(t * (TOTAL_FRAMES - 1)))
-      );
-      if (idx !== lastIdx.current && imgRef.current) {
-        imgRef.current.src = FRAMES[idx];
-        lastIdx.current = idx;
-      }
-      raf = requestAnimationFrame(tick);
+    let isOpen = false;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting && e.intersectionRatio >= 0.3 && !isOpen) {
+            isOpen = true;
+            animateTo(TOTAL_FRAMES - 1);
+          } else if (e.intersectionRatio < 0.1 && isOpen) {
+            isOpen = false;
+            animateTo(0);
+          }
+        }
+      },
+      { threshold: [0, 0.1, 0.3, 0.6, 0.9] }
+    );
+    io.observe(node);
+    return () => {
+      io.disconnect();
+      if (animRef.current) cancelAnimationFrame(animRef.current);
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [loaded, scrollYProgress]);
-
-  // Radial mask: book stays opaque in the center, fades to transparent at edges
-  // so the natural smoke / chroma-key residue at frame edges blends into the page.
-  const maskStyle: React.CSSProperties = {
-    WebkitMaskImage:
-      "radial-gradient(ellipse 65% 70% at center, #000 55%, rgba(0,0,0,0.5) 80%, transparent 100%)",
-    maskImage:
-      "radial-gradient(ellipse 65% 70% at center, #000 55%, rgba(0,0,0,0.5) 80%, transparent 100%)",
-  };
+  }, [loaded, targetRef]);
 
   return (
     /* eslint-disable-next-line @next/next/no-img-element */
@@ -96,7 +124,7 @@ export default function BookScrubber({
       src={FRAMES[0]}
       alt="Eye of Horus carved book opening and closing"
       className={`block h-full w-full object-contain ${className}`}
-      style={{ ...maskStyle, ...style }}
+      style={style}
     />
   );
 }
