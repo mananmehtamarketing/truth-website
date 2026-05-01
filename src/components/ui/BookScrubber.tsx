@@ -11,13 +11,8 @@ const FRAMES = Array.from({ length: TOTAL_FRAMES }, (_, i) => {
 
 /**
  * Book scroll scrubber — full 40-frame sequence from the source MP4.
- *
- * Mapping with t = 1 - |progress - 0.5| * 2:
- *  - section entering (progress 0)   → t=0  → frame 1   (book closed/flat)
- *  - section centered  (progress 0.5)→ t=1  → frame 40  (book fully open)
- *  - section leaving   (progress 1)  → t=0  → frame 1   (book closed/flat)
- *
- * Scroll up reverses the scrub. Smooth in both directions.
+ * Edges of the book frame (where natural smoke lives) fade to transparent
+ * via a radial mask so they blend into the dark page seamlessly.
  */
 export default function BookScrubber({
   targetRef,
@@ -37,7 +32,7 @@ export default function BookScrubber({
     offset: ["start end", "end start"],
   });
 
-  // Preload all frames so swap is instant once scrolling starts
+  // Preload all frames so swap is instant once scrolling
   useEffect(() => {
     let cancelled = false;
     let count = 0;
@@ -54,17 +49,23 @@ export default function BookScrubber({
     };
   }, []);
 
-  // Drive frame from scroll progress
+  // Drive frame from scroll progress. Mobile uses a much steeper curve so
+  // the book opens earlier (right when section is near top of viewport) and
+  // stays open longer through the scroll, since mobile sections scroll past
+  // very quickly and users miss the centered moment otherwise.
   useEffect(() => {
     if (!loaded) return;
+    const isMobile =
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 767px)").matches;
+
     let raf = 0;
     const tick = () => {
       const p = scrollYProgress.get();
-      // Amplify the curve so the book opens/closes within a TIGHTER band.
-      // Previously: t = 1 - |p-0.5|*2 (book opens across whole section)
-      // Now: t = 1 - |p-0.5|*4 clamped (book stays closed near edges,
-      //         opens rapidly in the middle 50% of the section)
-      const t = Math.max(0, Math.min(1, 1 - Math.abs(p - 0.5) * 4));
+      // Mobile: amplify x8 — book hits fully-open across a wide middle band
+      // Desktop: amplify x4 — already perfect there
+      const mult = isMobile ? 8 : 4;
+      const t = Math.max(0, Math.min(1, 1 - Math.abs(p - 0.5) * mult));
       const idx = Math.min(
         TOTAL_FRAMES - 1,
         Math.max(0, Math.round(t * (TOTAL_FRAMES - 1)))
@@ -79,6 +80,15 @@ export default function BookScrubber({
     return () => cancelAnimationFrame(raf);
   }, [loaded, scrollYProgress]);
 
+  // Radial mask: book stays opaque in the center, fades to transparent at edges
+  // so the natural smoke / chroma-key residue at frame edges blends into the page.
+  const maskStyle: React.CSSProperties = {
+    WebkitMaskImage:
+      "radial-gradient(ellipse 65% 70% at center, #000 55%, rgba(0,0,0,0.5) 80%, transparent 100%)",
+    maskImage:
+      "radial-gradient(ellipse 65% 70% at center, #000 55%, rgba(0,0,0,0.5) 80%, transparent 100%)",
+  };
+
   return (
     /* eslint-disable-next-line @next/next/no-img-element */
     <img
@@ -86,7 +96,7 @@ export default function BookScrubber({
       src={FRAMES[0]}
       alt="Eye of Horus carved book opening and closing"
       className={`block h-full w-full object-contain ${className}`}
-      style={style}
+      style={{ ...maskStyle, ...style }}
     />
   );
 }

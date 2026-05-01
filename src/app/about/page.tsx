@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import PageHero from "@/components/sections/PageHero";
 import OurStory from "@/components/sections/OurStory";
-import SmokeTransition from "@/components/sections/SmokeTransition";
 
 export const metadata: Metadata = {
   title: "About — Truth",
@@ -18,7 +17,7 @@ export default function AboutPage() {
         subtitle="We built Truth for the ones who want the night to mean something."
       />
       <OurStory />
-      <section className="relative px-6 pb-24 md:px-10">
+      <section className="relative px-6 pb-32 md:px-10 md:pb-40">
         <div className="mx-auto grid max-w-[1100px] grid-cols-1 gap-10 md:grid-cols-3">
           <Pillar
             n="01"
@@ -37,7 +36,6 @@ export default function AboutPage() {
           />
         </div>
       </section>
-      <SmokeTransition />
     </>
   );
 }

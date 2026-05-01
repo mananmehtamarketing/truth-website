@@ -56,7 +56,7 @@ export default function OurStory() {
         {/* Book — PNG/WebP frame scrubber tied to scroll. Works on every device. */}
         <motion.div
           style={{ y: ySlab, scale: slabScale }}
-          className="relative aspect-[404/606] w-[78%] max-w-[460px] mx-auto md:w-full"
+          className="relative aspect-[404/606] w-[95%] max-w-[460px] mx-auto md:w-full"
         >
           <BookScrubber
             targetRef={ref}

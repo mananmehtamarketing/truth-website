@@ -65,9 +65,11 @@ export default function Loader() {
             }}
           />
 
-          {/* Video plays IMMEDIATELY from its first frame — no black hold */}
+          {/* Video plays IMMEDIATELY. Mobile takes more screen, desktop stays
+              contained. Radial mask fades the rectangular edges into the smoke
+              so no visible box. */}
           <div
-            className="relative w-[88vw] max-w-[920px]"
+            className="relative w-[100vw] max-w-[1100px] md:w-[88vw] md:max-w-[920px]"
             style={{ aspectRatio: "16 / 9" }}
           >
             <video
@@ -79,7 +81,13 @@ export default function Loader() {
               preload="auto"
               poster="/images/loader-poster.jpg"
               className="absolute inset-0 h-full w-full object-contain"
-              style={{ mixBlendMode: "lighten" }}
+              style={{
+                mixBlendMode: "lighten",
+                WebkitMaskImage:
+                  "radial-gradient(ellipse 60% 65% at center, #000 50%, rgba(0,0,0,0.6) 75%, transparent 100%)",
+                maskImage:
+                  "radial-gradient(ellipse 60% 65% at center, #000 50%, rgba(0,0,0,0.6) 75%, transparent 100%)",
+              }}
             />
           </div>
 
