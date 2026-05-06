@@ -9,6 +9,7 @@ type Props = React.PropsWithChildren<{
   onClick?: () => void;
   strength?: number;
   ariaLabel?: string;
+  external?: boolean;
 }>;
 
 export default function MagneticButton({
@@ -18,6 +19,7 @@ export default function MagneticButton({
   onClick,
   strength = 0.35,
   ariaLabel,
+  external,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
@@ -57,8 +59,17 @@ export default function MagneticButton({
   );
 
   if (href) {
+    const isExternal =
+      external ?? (typeof href === "string" && /^https?:\/\//.test(href));
     return (
-      <a href={href} className="inline-flex" aria-label={ariaLabel}>
+      <a
+        href={href}
+        className="inline-flex"
+        aria-label={ariaLabel}
+        {...(isExternal
+          ? { target: "_blank", rel: "noopener noreferrer" }
+          : {})}
+      >
         {Inner}
       </a>
     );

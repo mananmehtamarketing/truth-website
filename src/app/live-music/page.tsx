@@ -3,16 +3,15 @@
 import { motion } from "framer-motion";
 import SplitText from "@/components/ui/SplitText";
 
+// Opening line-up — placeholder DJs and dates while the full opening
+// schedule is being finalised. Replace with the confirmed list when it lands.
 const events = [
-  { name: "DJ Allen", date: "6th December 2025", image: "/images/live-music/14.png" },
-  { name: "Selene", date: "12th December 2025", image: "/images/live-music/15.png" },
-  { name: "DJ Allen", date: "14th December 2025", image: "/images/live-music/14.png" },
-  { name: "Selene", date: "20th December 2025", image: "/images/live-music/15.png" },
-  { name: "DJ Allen", date: "21st December 2025", image: "/images/live-music/14.png" },
-  { name: "Selene", date: "27th December 2025", image: "/images/live-music/15.png" },
-  { name: "DJ Allen", date: "28th December 2025", image: "/images/live-music/14.png" },
-  { name: "Selene", date: "31st December 2025", image: "/images/live-music/15.png" },
-  { name: "DJ Allen", date: "Every Thursday", image: "/images/live-music/14.png" },
+  { name: "TBA", date: "Opening Night", image: "/images/live-music/14.png" },
+  { name: "TBA", date: "Coming Soon", image: "/images/live-music/15.png" },
+  { name: "TBA", date: "Coming Soon", image: "/images/live-music/14.png" },
+  { name: "TBA", date: "Coming Soon", image: "/images/live-music/15.png" },
+  { name: "TBA", date: "Coming Soon", image: "/images/live-music/14.png" },
+  { name: "TBA", date: "Coming Soon", image: "/images/live-music/15.png" },
 ];
 
 export default function LiveMusicPage() {
@@ -44,16 +43,20 @@ export default function LiveMusicPage() {
             transition={{ delay: 1, duration: 0.8 }}
             className="mt-6 max-w-[760px] font-body text-[14px] leading-relaxed text-truth-bone/85 md:mt-8 md:text-[18px]"
           >
-            Every Friday and Saturday, enjoy live music from 9 PM to 11 PM, flowing
-            seamlessly into DJ sets that carry the energy until 3:30 AM. Experience
-            evenings of sophistication, rhythm, and excitement, and discover this
-            month's curated line-up of performances and sets below.
+            Every Saturday, enjoy live music from 9 PM to 11 PM, flowing
+            seamlessly into DJ sets. DJs play Thursday, Friday and Saturday
+            from 11 PM until 3:30 AM. Experience evenings of sophistication,
+            rhythm, and excitement, and discover the curated line-up of
+            performances and sets below.
           </motion.p>
         </div>
       </section>
 
-      {/* 3x3 event grid */}
+      {/* Event grid */}
       <section className="relative px-6 pb-32 pt-12 md:px-10 md:pb-40">
+        <p className="mx-auto mb-10 max-w-xl text-center font-body text-[12px] tracking-[0.25em] uppercase text-truth-bone/50 md:mb-14">
+          Opening line-up coming soon
+        </p>
         <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-12">
           {events.map((e, i) => (
             <EventCard key={`${e.name}-${i}`} event={e} index={i} />

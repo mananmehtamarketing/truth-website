@@ -1,13 +1,39 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import SplitText from "@/components/ui/SplitText";
 
-const items = [
+const SEVEN_ROOMS_URL =
+  "https://www.sevenrooms.com/explore/truth/reservations/create/search/";
+
+// Reusable inline link styled to match the page palette.
+function FaqLink({
+  href,
+  external,
+  children,
+}: {
+  href: string;
+  external?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      {...(external
+        ? { target: "_blank", rel: "noopener noreferrer" }
+        : {})}
+      className="text-truth-gold underline-offset-4 hover:text-truth-bone hover:underline"
+    >
+      {children}
+    </a>
+  );
+}
+
+const items: { q: string; a: ReactNode }[] = [
   {
     q: "What are your opening hours?",
-    a: "Mon-Thurs 4pm-2am, Fri 3pm-2am, Sat 3pm-3am, Sun 3pm-12am.",
+    a: "Thursday, Friday & Saturday: 6pm – 3:30am (last entry 2:30am).",
   },
   {
     q: "Are you open on bank holidays?",
@@ -15,19 +41,38 @@ const items = [
   },
   {
     q: "Do I need to book in advance?",
-    a: "Reservations are recommended on Friday and Saturday nights. Walk-ins are welcome subject to capacity.",
+    a: "We recommend booking for parties larger than 6 guests. For parties of less than 6 guests, you do not need to make a reservation, you are more than welcome to walk in and our host will find you a table.",
   },
   {
     q: "How can I make a reservation?",
-    a: "Use the Book Now link on this site, email bookings@truth.com, or DM us on Instagram. We confirm within 24 hours.",
+    a: (
+      <>
+        You can make a booking{" "}
+        <FaqLink href={SEVEN_ROOMS_URL} external>
+          here
+        </FaqLink>
+        , email{" "}
+        <FaqLink href="mailto:bookings@truth.com">bookings@truth.com</FaqLink>,
+        or DM us on Instagram. We confirm within 24 hours.
+      </>
+    ),
   },
   {
     q: "Can I hire the venue for a private event?",
-    a: "Yes. We host private events in The Horus Room, The Obelisk Room, or full venue hire for up to 150 guests. See the Private Room page or contact bookings@truth.com.",
+    a: (
+      <>
+        Yes. We host private events in{" "}
+        <FaqLink href="/private-room">The Horus Room</FaqLink>,{" "}
+        <FaqLink href="/private-room">The Obelisk Room</FaqLink>, or full venue
+        hire for up to 150 guests. See the{" "}
+        <FaqLink href="/private-room">Private Events page</FaqLink> or contact{" "}
+        <FaqLink href="mailto:events@truth.com">events@truth.com</FaqLink>.
+      </>
+    ),
   },
   {
     q: "Where are your toilets located?",
-    a: "Through the corridor on the right of the bar. Accessible facilities are available on the same level.",
+    a: "Through the corridor on the right of the bar.",
   },
   {
     q: "Do you serve food?",
@@ -39,31 +84,57 @@ const items = [
   },
   {
     q: "Do you have live music or DJs?",
-    a: "Yes. Live music every Friday and Saturday from 9pm-11pm, flowing into DJ sets until 3:30am. See the Live Music & DJ page for the full lineup.",
+    a: (
+      <>
+        Yes. Live music every Saturday from 9pm – 11pm. DJs play Thursday,
+        Friday and Saturday from 11pm until 3:30am. See the{" "}
+        <FaqLink href="/live-music">Live Music & DJ page</FaqLink> for the full
+        lineup.
+      </>
+    ),
   },
   {
     q: "Is there a dress code?",
-    a: "Smart casual at minimum. Truth is a stage — dress with intent. No sportswear or beachwear.",
+    a: "Smart casual at minimum. Truth is a stage — dress with intent. No sportswear, beachwear, caps or hats.",
   },
   {
     q: "Do you take card or cash?",
-    a: "We accept all major cards, UPI, and contactless payments. Cash is accepted as well.",
+    a: "We accept all major cards and contactless payments. Please note we do not take American Express. Cash is accepted as well.",
   },
   {
     q: "Where are you located?",
-    a: "203, Konyvita, Andheri East, Mumbai, Maharashtra 400093. Tap the map on the homepage for directions.",
+    a: (
+      <>
+        2 Victoria Terrace, Leamington Spa, CV31 3AB. We are the door to the
+        left of The Terrace Restaurant.{" "}
+        <FaqLink
+          href="https://www.google.com/maps/search/?api=1&query=2+Victoria+Terrace+Leamington+Spa+CV31+3AB"
+          external
+        >
+          Open in Google Maps
+        </FaqLink>
+        .
+      </>
+    ),
   },
   {
     q: "Is there nearby parking?",
-    a: "Valet is available on Friday and Saturday evenings. Public parking is steps away on the main road.",
+    a: "Yes, there's public parking which is free after 6pm down towards the police station. Alternatively, there is paid parking during the day and I'd recommend Bath Place Car Park at the back of Majestic Wine just down the road if you're struggling to find a space.",
   },
   {
     q: "Are you near the train station?",
-    a: "We are a short ride from Andheri station. Most ride-hailing apps drop you directly at our entrance.",
+    a: "Yes, we're about a 5-10 minute walk from Leamington Spa Station.",
   },
   {
     q: "Do you run cocktail or wine masterclasses?",
-    a: "Yes. Our exclusive cocktail masterclasses are perfect for parties and private events. Guests craft three signature cocktails of their own with our mixologists. See the Private Room page to book.",
+    a: (
+      <>
+        Yes. Our exclusive cocktail masterclasses are perfect for parties and
+        private events. Guests craft three signature cocktails of their own
+        with our mixologists. See the{" "}
+        <FaqLink href="/private-room">Private Events page</FaqLink> to enquire.
+      </>
+    ),
   },
 ];
 
@@ -105,7 +176,13 @@ export default function FaqsPage() {
         <div className="mx-auto max-w-[920px]">
           <ul className="border-y border-truth-bone/15">
             {items.map((it, i) => (
-              <FaqRow key={it.q} {...it} index={i} last={i === items.length - 1} />
+              <FaqRow
+                key={it.q}
+                q={it.q}
+                a={it.a}
+                index={i}
+                last={i === items.length - 1}
+              />
             ))}
           </ul>
         </div>
@@ -121,7 +198,7 @@ function FaqRow({
   last,
 }: {
   q: string;
-  a: string;
+  a: ReactNode;
   index: number;
   last: boolean;
 }) {

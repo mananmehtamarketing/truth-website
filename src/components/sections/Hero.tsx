@@ -99,7 +99,7 @@ export default function Hero() {
                 transition={{ delay: 1.5, duration: 0.8 }}
                 className="mx-auto mt-5 max-w-md font-body text-[11px] tracking-[0.28em] text-truth-bone/70 sm:text-[13px] md:text-[15px] md:tracking-[0.3em]"
               >
-                UNDERGROUND COCKTAIL BAR  •  LONDON
+                UNDERGROUND COCKTAIL BAR & NIGHTCLUB  •  LEAMINGTON SPA
               </motion.p>
             </>
           )}

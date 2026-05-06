@@ -39,7 +39,7 @@ export default function PageHero({
           stagger={0.04}
           duration={0.9}
           delay={0.2}
-          className="font-display text-truth-bone text-[56px] leading-[1] md:text-[110px] xl:text-[148px] lowercase"
+          className="font-display text-truth-bone text-[56px] leading-[1] md:text-[110px] xl:text-[148px]"
         />
         {subtitle && (
           <motion.p

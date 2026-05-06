@@ -3,10 +3,13 @@
 import { motion } from "framer-motion";
 import MagneticButton from "@/components/ui/MagneticButton";
 
-const navLinks: { label: string; href: string }[] = [
+const SEVEN_ROOMS_URL =
+  "https://www.sevenrooms.com/explore/truth/reservations/create/search/";
+
+const navLinks: { label: string; href: string; external?: boolean }[] = [
   { label: "Home Page", href: "/" },
   { label: "About Us", href: "/about" },
-  { label: "Book Now", href: "/book-now" },
+  { label: "Book Now", href: SEVEN_ROOMS_URL, external: true },
   { label: "Private Events", href: "/private-room" },
   { label: "FAQ's", href: "/faqs" },
   { label: "Live Music & DJ", href: "/live-music" },
@@ -15,10 +18,9 @@ const navLinks: { label: string; href: string }[] = [
 ];
 
 const hours = [
-  ["Mon-Thurs", "4pm-2am"],
-  ["Fri", "3pm-2am"],
-  ["Sat", "3pm-3am"],
-  ["Sun", "3pm-12am"],
+  ["Thursday", "6pm – 3:30am"],
+  ["Friday", "6pm – 3:30am"],
+  ["Saturday", "6pm – 3:30am"],
 ];
 
 const emails = ["info@truth.com", "bookings@truth.com", "careers@truth.com"];
@@ -65,7 +67,13 @@ export default function Footer() {
                       show: { opacity: 1, x: 0 },
                     }}
                   >
-                    <a href={l.href} className="hover:text-truth-gold">
+                    <a
+                      href={l.href}
+                      className="hover:text-truth-gold"
+                      {...(l.external
+                        ? { target: "_blank", rel: "noopener noreferrer" }
+                        : {})}
+                    >
                       {l.label}
                     </a>
                   </motion.li>
@@ -85,8 +93,8 @@ export default function Footer() {
                 </MagneticButton>
               </div>
 
-              {/* hours / connect — side by side on mobile too */}
-              <div className="col-span-2 grid grid-cols-2 gap-6 md:col-span-1 md:block md:space-y-8">
+              {/* Hours + Location + Map — right-aligned on desktop */}
+              <div className="col-span-2 md:col-span-1 md:text-right md:space-y-8">
                 <div>
                   <p className="font-body text-[12px] font-bold uppercase tracking-[0.3em] text-truth-bone/90 md:text-[14px]">
                     Hours
@@ -99,15 +107,55 @@ export default function Footer() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, amount: 0.5 }}
                         transition={{ duration: 0.5 }}
-                        className="flex flex-col md:flex-row md:justify-between md:gap-6"
+                        className="flex flex-col md:flex-row md:justify-end md:gap-4"
                       >
                         <span className="text-truth-bone/70">{d}</span>
                         <span>{h}</span>
                       </motion.li>
                     ))}
+                    <li className="pt-1 text-truth-bone/60 italic md:text-[14px]">
+                      Last entry 2:30am
+                    </li>
                   </ul>
                 </div>
-                <div>
+
+                <div className="mt-6 md:mt-0">
+                  <p className="font-body text-[12px] font-bold uppercase tracking-[0.3em] text-truth-bone/90 md:text-[14px]">
+                    Location
+                  </p>
+                  <p className="mt-2 font-body text-[14px] text-truth-bone/85 md:text-[16px]">
+                    2 Victoria Terrace,
+                    <br />
+                    Leamington Spa, CV31 3AB
+                    <br />
+                    <span className="text-truth-bone/65 italic">
+                      Below The Terrace Restaurant
+                    </span>
+                  </p>
+                </div>
+
+                <div className="mt-6 md:mt-0 md:flex md:justify-end">
+                  <motion.a
+                    href="https://www.google.com/maps/search/?api=1&query=2+Victoria+Terrace+Leamington+Spa+CV31+3AB"
+                    target="_blank"
+                    rel="noreferrer"
+                    whileHover={{ scale: 1.02 }}
+                    className="relative block aspect-[365/200] w-full max-w-[365px] overflow-hidden rounded-[10px] ring-1 ring-truth-gold/30"
+                  >
+                    <iframe
+                      title="Truth Leamington Spa map"
+                      src="https://www.google.com/maps?q=2+Victoria+Terrace,+Leamington+Spa,+CV31+3AB&output=embed"
+                      className="absolute inset-0 h-full w-full grayscale-[40%] contrast-110"
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 font-body text-[12px] tracking-widest text-truth-bone/80 uppercase">
+                      Open in Google Maps
+                    </div>
+                  </motion.a>
+                </div>
+
+                <div className="mt-6 md:mt-0">
                   <p className="font-body text-[12px] font-bold uppercase tracking-[0.3em] text-truth-bone/90 md:text-[14px]">
                     Connect
                   </p>
@@ -122,91 +170,6 @@ export default function Footer() {
                   </ul>
                 </div>
               </div>
-            </div>
-
-            {/* Map placeholder + location */}
-            <div className="mt-8 grid grid-cols-1 gap-6 md:mt-12 md:grid-cols-[1fr_1fr] md:gap-8">
-              <div>
-                <p className="font-body text-[12px] font-bold uppercase tracking-[0.3em] text-truth-bone/90 md:text-[14px]">
-                  Location
-                </p>
-                <p className="mt-2 font-body text-[14px] text-truth-bone/85 md:text-[16px]">
-                  London
-                  <br />
-                  Address line 1,
-                  <br />
-                  London, United Kingdom
-                </p>
-              </div>
-              <motion.a
-                href="https://maps.google.com/?q=Truth+Cocktail+Bar+London"
-                target="_blank"
-                rel="noreferrer"
-                whileHover={{ scale: 1.02 }}
-                className="relative block aspect-[365/149] w-full max-w-[365px] overflow-hidden rounded-[10px] ring-1 ring-truth-gold/30"
-              >
-                {/* Map placeholder (gold lines + pin) */}
-                <div className="absolute inset-0 bg-[#0a0a0a]">
-                  <svg viewBox="0 0 365 149" className="h-full w-full">
-                    {Array.from({ length: 8 }).map((_, i) => (
-                      <line
-                        key={i}
-                        x1={i * 50}
-                        y1="0"
-                        x2={i * 50 + 30}
-                        y2="149"
-                        stroke="#c9a96b"
-                        strokeOpacity="0.18"
-                        strokeWidth="1"
-                      />
-                    ))}
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <line
-                        key={i}
-                        x1="0"
-                        y1={i * 30 + 10}
-                        x2="365"
-                        y2={i * 30 + 30}
-                        stroke="#c9a96b"
-                        strokeOpacity="0.12"
-                        strokeWidth="1"
-                      />
-                    ))}
-                    <circle cx="200" cy="80" r="6" fill="#c9a96b">
-                      <animate
-                        attributeName="r"
-                        values="6;9;6"
-                        dur="2s"
-                        repeatCount="indefinite"
-                      />
-                    </circle>
-                    <circle
-                      cx="200"
-                      cy="80"
-                      r="14"
-                      fill="none"
-                      stroke="#c9a96b"
-                      strokeOpacity="0.5"
-                    >
-                      <animate
-                        attributeName="r"
-                        values="14;30;14"
-                        dur="2s"
-                        repeatCount="indefinite"
-                      />
-                      <animate
-                        attributeName="stroke-opacity"
-                        values="0.5;0;0.5"
-                        dur="2s"
-                        repeatCount="indefinite"
-                      />
-                    </circle>
-                  </svg>
-                </div>
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 font-body text-[12px] tracking-widest text-truth-bone/80 uppercase">
-                  Open in Google Maps
-                </div>
-              </motion.a>
             </div>
 
             {/* socials */}
@@ -229,7 +192,7 @@ export default function Footer() {
             </div>
 
             <p className="mt-12 font-body text-[12px] tracking-[0.3em] uppercase text-truth-bone/40">
-              © {new Date().getFullYear()} Truth London. All rights reserved.
+              © {new Date().getFullYear()} Truth Leamington Spa. All rights reserved.
             </p>
           </div>
 

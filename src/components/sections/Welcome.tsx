@@ -49,7 +49,10 @@ export default function Welcome() {
               transition={{ delay: 0.4, duration: 0.7 }}
               className="mt-10 flex justify-center"
             >
-              <MagneticButton href="/book-now" ariaLabel="Book Now">
+              <MagneticButton
+                href="https://www.sevenrooms.com/explore/truth/reservations/create/search/"
+                ariaLabel="Book Now"
+              >
                 Book Now
               </MagneticButton>
             </motion.div>

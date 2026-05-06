@@ -12,11 +12,11 @@ import Footer from "@/components/sections/Footer";
 export const metadata: Metadata = {
   title: "Truth — Where the Night Reveals What Lies Beneath",
   description:
-    "Truth: an electric underground cocktail bar and nightclub in London. Step below the surface and find a space created for those who crave more than the ordinary.",
+    "Truth: an electric underground cocktail bar and nightclub in Leamington Spa. Step below the surface and find a space created for those who crave more than the ordinary.",
   openGraph: {
     title: "Truth — Underground Cocktail Bar & Nightclub",
     description:
-      "An electric underground cocktail bar and nightclub in London.",
+      "An electric underground cocktail bar and nightclub in Leamington Spa.",
     type: "website",
   },
 };

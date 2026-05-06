@@ -87,6 +87,9 @@ export default function OurStory() {
               text={`A symbol of healing, wholeness and clarity regained.`}
               accent
             />
+            <Paragraph
+              text={`That same spirit lives beneath the surface here. Truth is the place where the Eye opens again, where the noise of the world fades and what is real comes into focus. Each cocktail, each note of music, each shadowed corner is a piece restored. Step inside, and you find your own clarity. That is the Truth.`}
+            />
           </div>
         </motion.div>
       </div>

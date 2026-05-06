@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
+const SEVEN_ROOMS_URL =
+  "https://www.sevenrooms.com/explore/truth/reservations/create/search/";
+
 const links = [
-  { label: "BOOK NOW", href: "/book-now" },
+  { label: "BOOK NOW", href: SEVEN_ROOMS_URL, external: true },
   { label: "PRIVATE EVENTS", href: "/private-room" },
   { label: "MENU", href: "/menu" },
 ];
@@ -59,13 +62,13 @@ export default function Nav() {
           <nav className="hidden flex-1 items-center justify-between font-body text-[14px] uppercase tracking-[0.18em] text-truth-bone md:flex">
             <ul className="flex flex-1 items-center justify-end gap-10">
               {links.map((l) => (
-                <NavLink key={l.label} {...l} />
+                <NavLink key={l.label} label={l.label} href={l.href} external={(l as any).external} />
               ))}
             </ul>
             <Crest />
             <ul className="flex flex-1 items-center justify-start gap-10">
               {linksRight.map((l) => (
-                <NavLink key={l.label} {...l} />
+                <NavLink key={l.label} label={l.label} href={l.href} external={(l as any).external} />
               ))}
             </ul>
           </nav>
@@ -108,13 +111,25 @@ export default function Nav() {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1, transition: { delay: 0.04 * i } }}
               >
-                <Link
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="hover:text-truth-gold"
-                >
-                  {l.label}
-                </Link>
+                {(l as any).external ? (
+                  <a
+                    href={l.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setOpen(false)}
+                    className="hover:text-truth-gold"
+                  >
+                    {l.label}
+                  </a>
+                ) : (
+                  <Link
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                    className="hover:text-truth-gold"
+                  >
+                    {l.label}
+                  </Link>
+                )}
               </motion.div>
             ))}
           </motion.div>
@@ -124,16 +139,35 @@ export default function Nav() {
   );
 }
 
-function NavLink({ label, href }: { label: string; href: string }) {
+function NavLink({
+  label,
+  href,
+  external,
+}: {
+  label: string;
+  href: string;
+  external?: boolean;
+}) {
+  const cls =
+    "group relative inline-block py-2 hover:text-truth-gold";
   return (
     <li>
-      <Link
-        href={href}
-        className="group relative inline-block py-2 hover:text-truth-gold"
-      >
-        <span>{label}</span>
-        <span className="absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 bg-truth-gold transition-transform duration-500 group-hover:scale-x-100" />
-      </Link>
+      {external ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cls}
+        >
+          <span>{label}</span>
+          <span className="absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 bg-truth-gold transition-transform duration-500 group-hover:scale-x-100" />
+        </a>
+      ) : (
+        <Link href={href} className={cls}>
+          <span>{label}</span>
+          <span className="absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 bg-truth-gold transition-transform duration-500 group-hover:scale-x-100" />
+        </Link>
+      )}
     </li>
   );
 }

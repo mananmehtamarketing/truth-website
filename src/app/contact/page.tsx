@@ -12,10 +12,9 @@ const emails = [
 ];
 
 const hours = [
-  ["Mon-Thurs", "4pm – 2am"],
-  ["Friday", "3pm – 2am"],
-  ["Saturday", "3pm – 3am"],
-  ["Sunday", "3pm – 12am"],
+  ["Thursday", "6pm – 3:30am"],
+  ["Friday", "6pm – 3:30am"],
+  ["Saturday", "6pm – 3:30am"],
 ];
 
 export default function ContactPage() {
@@ -58,14 +57,32 @@ export default function ContactPage() {
                     <span>{h}</span>
                   </li>
                 ))}
+                <li className="pt-2 font-body text-[14px] italic text-truth-bone/60">
+                  Last entry 2:30am
+                </li>
               </ul>
             </Block>
             <Block title="Location">
               <p className="font-body text-[16px] text-truth-bone/85">
-                London, United Kingdom
+                2 Victoria Terrace,
+                <br />
+                Leamington Spa, CV31 3AB
+                <br />
+                <span className="text-truth-bone/65 italic">
+                  Below The Terrace Restaurant
+                </span>
               </p>
+              <div className="mt-4 overflow-hidden rounded-md ring-1 ring-truth-gold/30">
+                <iframe
+                  title="Truth Leamington Spa map"
+                  src="https://www.google.com/maps?q=2+Victoria+Terrace,+Leamington+Spa,+CV31+3AB&output=embed"
+                  className="h-[220px] w-full grayscale-[40%] contrast-110"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
               <a
-                href="https://maps.google.com/?q=Truth+Cocktail+Bar+London"
+                href="https://www.google.com/maps/search/?api=1&query=2+Victoria+Terrace+Leamington+Spa+CV31+3AB"
                 target="_blank"
                 rel="noreferrer"
                 className="mt-3 inline-block font-body text-[14px] tracking-[0.2em] uppercase text-truth-gold hover:text-truth-bone"

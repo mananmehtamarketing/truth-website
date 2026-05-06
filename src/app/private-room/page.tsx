@@ -5,26 +5,29 @@ import SplitText from "@/components/ui/SplitText";
 import MagneticButton from "@/components/ui/MagneticButton";
 import OrnateCard from "@/components/ui/OrnateCard";
 
-const rooms = [
-  {
-    title: "The Horus Room",
-    body: "Welcome to Truth: an electric underground cocktail bar and nightclub. Step below the surface and you'll find a space created for those who crave more than the ordinary.",
-    image: "/images/private-room/9.png",
-    video: undefined as string | undefined,
-  },
-  {
-    title: "The Obelisk Room",
-    body: "Command the night from The Obelisk Room. Perfect for milestone birthdays, intimate celebrations, or exclusive gatherings, this room offers a setting where every detail is meticulously crafted. Raise your glass to unforgettable nights with bespoke cocktails, and let our team deliver a seamless, elevated experience worthy of the occasion.",
-    image: "/images/private-room/10.png",
-    video: undefined as string | undefined,
-  },
-  {
-    title: "Cocktail Masterclasses",
-    body: "Elevate your night with our exclusive cocktail masterclasses, perfect for parties and private events. Guided by our expert mixologists, you and your guests will learn the art of mixology while crafting three signature cocktails of your own. An intimate, interactive and unforgettable way to celebrate, tailored to bring the energy of Truth to your private occasion.",
-    image: "/images/private-room/11.png",
-    video: undefined as string | undefined,
-  },
-];
+const SEVEN_ROOMS_URL =
+  "https://www.sevenrooms.com/explore/truth/reservations/create/search/";
+
+const horusRoom = {
+  title: "The Horus Room",
+  body: "Head underground and step into The Horus Room: a seductive, intimate hideaway within Truth. This exclusive private room is designed for 25 guests and your unforgettable celebrations. Sink into black leather sofas, bask in neon glow, and sip handcrafted cocktails that are designed to delight. Whether it's a birthday, hen night, stag do, or anniversary, let us create the perfect night for you.",
+  image: "/images/private-room/9.png",
+  video: undefined as string | undefined,
+};
+
+const obeliskRoom = {
+  title: "The Obelisk Room",
+  body: "Command the night from The Obelisk Room, suitable for 25 guests. Perfect for milestone birthdays, intimate celebrations, or exclusive gatherings, this room offers a setting where every detail is meticulously crafted. Raise your glass to unforgettable nights with bespoke cocktails, and let our team deliver a seamless, elevated experience worthy of the occasion.",
+  image: "/images/private-room/10.png",
+  video: undefined as string | undefined,
+};
+
+const masterclasses = {
+  title: "Cocktail Masterclasses",
+  body: "Elevate your night with our exclusive cocktail masterclasses, perfect for parties and private events. Guided by our expert mixologists, you and your guests will learn the art of mixology while crafting three signature cocktails of your own. An intimate, interactive and unforgettable way to celebrate, tailored to bring the energy of Truth to your private occasion.",
+  image: "/images/private-room/11.png",
+  video: undefined as string | undefined,
+};
 
 export default function PrivateRoomPage() {
   return (
@@ -117,23 +120,111 @@ export default function PrivateRoomPage() {
         </div>
       </section>
 
-      {/* Three ornate room cards */}
+      {/* Ornate room cards: Horus → Obelisk → Ready to Celebrate → Masterclasses */}
       <div className="space-y-12 px-6 pb-32 md:space-y-16 md:px-10">
-        {rooms.map((r, i) => (
-          <OrnateCard key={r.title} bgImage={r.image} bgVideo={r.video} index={i}>
-            <h2 className="font-display text-[22px] uppercase tracking-[0.16em] text-truth-bone sm:text-[26px] md:text-[36px] md:tracking-[0.18em]">
-              {r.title}
-            </h2>
-            <p className="mx-auto mt-4 max-w-[640px] font-body text-[13px] leading-relaxed text-truth-bone/85 sm:text-[14px] md:mt-5 md:text-[17px]">
-              {r.body}
-            </p>
-            <div className="mt-7 flex justify-center">
-              <MagneticButton href="/book-now" ariaLabel={`Book ${r.title}`}>
-                Book Now
-              </MagneticButton>
-            </div>
-          </OrnateCard>
-        ))}
+        <OrnateCard bgImage={horusRoom.image} bgVideo={horusRoom.video} index={0}>
+          <h2 className="font-display text-[22px] uppercase tracking-[0.16em] text-truth-bone sm:text-[26px] md:text-[36px] md:tracking-[0.18em]">
+            {horusRoom.title}
+          </h2>
+          <p className="mx-auto mt-4 max-w-[640px] font-body text-[13px] leading-relaxed text-truth-bone/85 sm:text-[14px] md:mt-5 md:text-[17px]">
+            {horusRoom.body}
+          </p>
+          <div className="mt-7 flex justify-center">
+            <MagneticButton
+              href="mailto:bookings@truth.com?subject=Horus%20Room%20Enquiry"
+              ariaLabel="Enquire about The Horus Room"
+            >
+              Enquire
+            </MagneticButton>
+          </div>
+        </OrnateCard>
+
+        <OrnateCard bgImage={obeliskRoom.image} bgVideo={obeliskRoom.video} index={1}>
+          <h2 className="font-display text-[22px] uppercase tracking-[0.16em] text-truth-bone sm:text-[26px] md:text-[36px] md:tracking-[0.18em]">
+            {obeliskRoom.title}
+          </h2>
+          <p className="mx-auto mt-4 max-w-[640px] font-body text-[13px] leading-relaxed text-truth-bone/85 sm:text-[14px] md:mt-5 md:text-[17px]">
+            {obeliskRoom.body}
+          </p>
+          <div className="mt-7 flex justify-center">
+            <MagneticButton
+              href="mailto:bookings@truth.com?subject=Obelisk%20Room%20Enquiry"
+              ariaLabel="Enquire about The Obelisk Room"
+            >
+              Enquire
+            </MagneticButton>
+          </div>
+        </OrnateCard>
+
+        {/* Ready to Celebrate? — bridge section between rooms and masterclasses */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          className="relative mx-auto w-full max-w-[1100px] overflow-hidden rounded-[28px] border border-truth-gold/25 bg-gradient-to-b from-truth-black via-[#0c0a08] to-truth-black px-6 py-14 text-center md:rounded-[40px] md:px-16 md:py-20"
+        >
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,_rgba(201,169,107,0.18),_rgba(0,0,0,0)_60%)]"
+          />
+          <h2 className="relative font-display text-[28px] uppercase tracking-[0.18em] text-truth-bone sm:text-[34px] md:text-[44px]">
+            Ready to Celebrate?
+          </h2>
+          <p className="relative mx-auto mt-6 max-w-[760px] font-body text-[14px] leading-relaxed text-truth-bone/85 sm:text-[15px] md:mt-8 md:text-[18px]">
+            From more intimate parties to larger celebrations, we have many
+            options to suit your party size. Our Horus and Obelisk Room can be
+            booked together for party sizes up to 60 guests. You can also
+            exclusively hire the whole of Truth for parties of 150 guests on
+            Sunday, Monday, Tuesday, Wednesday and Thursday. Contact our Events
+            Manager below and we can help you curate the perfect bespoke
+            celebration. Explore our Drink Packages and Canapé Menu below.
+          </p>
+          <div className="relative mt-10 flex flex-col flex-wrap items-center justify-center gap-4 sm:flex-row md:mt-12 md:gap-5">
+            <MagneticButton
+              href="mailto:events@truth.com?subject=Private%20Event%20Enquiry"
+              ariaLabel="Contact the Events Manager"
+            >
+              Contact Events Manager
+            </MagneticButton>
+            <MagneticButton
+              href="/private-room/drink-packages"
+              ariaLabel="Drink Packages"
+            >
+              Drink Packages
+            </MagneticButton>
+            <MagneticButton
+              href="/private-room/canape-menu"
+              ariaLabel="Canapé Menu"
+            >
+              Canapé Menu
+            </MagneticButton>
+          </div>
+          <p className="relative mt-6 font-body text-[12px] tracking-[0.25em] uppercase text-truth-bone/50">
+            Drink Packages & Canapé Menu — coming soon
+          </p>
+        </motion.section>
+
+        <OrnateCard
+          bgImage={masterclasses.image}
+          bgVideo={masterclasses.video}
+          index={2}
+        >
+          <h2 className="font-display text-[22px] uppercase tracking-[0.16em] text-truth-bone sm:text-[26px] md:text-[36px] md:tracking-[0.18em]">
+            {masterclasses.title}
+          </h2>
+          <p className="mx-auto mt-4 max-w-[640px] font-body text-[13px] leading-relaxed text-truth-bone/85 sm:text-[14px] md:mt-5 md:text-[17px]">
+            {masterclasses.body}
+          </p>
+          <div className="mt-7 flex justify-center">
+            <MagneticButton
+              href="mailto:bookings@truth.com?subject=Cocktail%20Masterclass%20Enquiry"
+              ariaLabel="Enquire about Cocktail Masterclasses"
+            >
+              Enquire
+            </MagneticButton>
+          </div>
+        </OrnateCard>
       </div>
     </>
   );
